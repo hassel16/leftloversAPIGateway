@@ -1,17 +1,36 @@
 'use strict';
 
+const Service = require('./Service');
+
 class ServiceList{
     constructor(serviceName) {
         this.serviceName = serviceName;
         this.serviceInstances = new Array();
     }
 
-    add(serviceInstance){
-        this.serviceInstances.push(serviceInstance)
+    addServiceInstance(serviceUrl,servicePort){
+        this.serviceInstances.forEach(serviceInstance => {
+            if (serviceInstance.serviceUrl == serviceUrl && serviceInstance.servicePort == servicePort) {
+                return false;
+            }
+        });
+        let nService = new Service(this.serviceInstances.length,serviceUrl,servicePort);
+        this.serviceInstances.push(nService);
+        return nService;
     }
 
     getRandomService(){
-        let randomInstanceNumber = Math.floor(Math.random() * serviceInstances.length())
+        return this.serviceInstances[Math.floor(Math.random()*items.length)]
+    }
+
+    deleteServiceInstance(serviceInstanceId){
+        for (let index = 0; index < this.serviceInstances.length; index++) {
+            if (this.serviceInstances[index].serviceId == serviceInstanceId) {
+                this.serviceInstances.slice(index, 1);
+                return true;
+            }
+        }
+        return false;
     }
 }
 module.exports = ServiceList;

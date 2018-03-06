@@ -1,9 +1,9 @@
 'use strict';
 
 class Service{
-    constructor(serviceId,serviceAdress,servicePort) {
+    constructor(serviceId,serviceUrl,servicePort) {
         this.serviceId = serviceId;
-        this.serviceAdress = serviceAdress;
+        this.serviceUrl = serviceUrl;
         this.servicePort = servicePort;
     }
 }

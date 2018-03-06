@@ -3,15 +3,14 @@
 const ServiceList = require('./ServiceList');
 const Service = require('./Service');
 
-class Router{
+class Router {
     constructor() {
         this.domain = new Array();
     }
-    addServiceList(nServicelistName){
+    
+    addServiceList(nServicelistName) {
         this.domain.forEach(servicelist => {
-            let servicelistCached = new ServiceList();
-            servicelistCached = servicelist;
-            if(servicelistCached.serviceName == servicelistName){
+            if (servicelist.serviceName == servicelistName) {
                 return false;
             }
         });
@@ -19,15 +18,27 @@ class Router{
         return true;
     }
 
-    deleteServiceList(nServicelistName){
-        let servicelistCached = new ServiceList();
+    deleteServiceList(nServicelistName) {
         for (let index = 0; index < this.domain.length; index++) {
-            if(servicelistCached.serviceName == servicelistName){
-                this.domain.slice(index,1);
+            if (this.domain[index].serviceName == servicelistName) {
+                this.domain.slice(index, 1);
                 return true;
             }
         }
         return false;
+    }
+
+    getServiceList(nServicelistName) {
+        for (let index = 0; index < this.domain.length; index++) {
+            if (this.domain[index].serviceName == servicelistName) {
+                return this.domain[index];
+            }
+        }
+        return false;
+    }
+
+    route(needServiceName) {
+
     }
 }
 module.exports = Router;

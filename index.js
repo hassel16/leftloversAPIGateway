@@ -1,11 +1,23 @@
-var express = require('express');
-var app = express();
-var httpProxy = require('http-proxy');
-var apiProxy = httpProxy.createProxyServer();
-var homeSeiteService = 'http://localhost:8087',
-    verkehrsmittelSeiteService = 'http://localhost:8089',
-    pinnwandSeiteService = 'http://localhost:8098',
-    authMobileService = 'http://localhost:8083';
+const express = require('express');
+const app = express();
+const httpProxy = require('http-proxy');
+const bodyParser = require('body-parser');
+const apiProxy = httpProxy.createProxyServer();
+const homeSeiteService = 'http://localhost:8087';
+const Router= require('./classes/Router');
+const routerObj = new Router();
+
+/**Eventuell gebraucht 
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
+*/
+
+app.use(bodyParser.json());
+
+app.listen(80, function () {
+    console.log("APIGateway");
+});
 
 /**
  * Verweist auf den HomeSeiteService, um die Daten der OpenWeatherAPI
@@ -15,24 +27,14 @@ app.all("/HomeSeiteService", function (req, res) {
     apiProxy.web(req, res, { target: homeSeiteService });
 });
 
-/**
- * Verweist auf den VerkehrsmittelSeiteService, um die entsprechenden
- * Daten der RMV(Industriehof <> HBF) oder des ADAC(Stau) auszulesen 
- */
-app.all("/VerkehrsmittelSeiteService/*", function (req, res) {
-    apiProxy.web(req, res, { target: verkehrsmittelSeiteService });
-});
-/**
- * Verweist auf den AuthMobileAppService, 
- * um einzuloggen, einen vorhandenen Token zu checken oder auszuloggen
- */
-app.all("/AuthMobileAppService/*", function (req, res) {
-    apiProxy.web(req, res, { target: authMobileService });
+app.post('/ServiceRegister', function (req, res) {
+    if(routerObj.addServiceList(req.body.serviceName)==true){
+        res.json(routerObj.domain[routerObj.domain.length-1].addServiceInstance(req.body.serviceUrl, req.body.servicePort));
+    }else{
+        res.json(routerObj.getServiceList(req.body.serviceName).addServiceInstance(req.body.serviceUrl, req.body.servicePort));
+    }
 });
 
-app.all("/PinnwandSeiteService/*", function (req, res) {
-    apiProxy.web(req, res, { target: pinnwandSeiteService });
+app.get('/ServiceRegister', function (req, res) {
+        res.json(routerObj);
 });
-
-
-app.listen(80);
