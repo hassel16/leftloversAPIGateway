@@ -1,0 +1,23 @@
+{
+  "name": "leftloversapigateway",
+  "version": "0.0.1",
+  "description": "APIGateway and Router",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hassel16/leftloversAPIGateway.git"
+  },
+  "author": "Daniel Hasselwander",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hassel16/leftloversAPIGateway/issues"
+  },
+  "homepage": "https://github.com/hassel16/leftloversAPIGateway#readme",
+  "dependencies": {
+    "express": "^4.16.2",
+    "http-proxy": "^1.16.2"
+  }
+}
