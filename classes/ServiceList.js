@@ -23,6 +23,15 @@ class ServiceList{
         return this.serviceInstances[Math.floor(Math.random()*items.length)]
     }
 
+    getServiceInstance(serviceId){
+        this.serviceInstances.forEach(serviceInstance => {
+            if (serviceInstance.serviceId == serviceId) {
+                return serviceInstance;
+            }
+        });
+        return false;
+    }
+
     deleteServiceInstance(serviceInstanceId){
         for (let index = 0; index < this.serviceInstances.length; index++) {
             if (this.serviceInstances[index].serviceId == serviceInstanceId) {

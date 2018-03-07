@@ -38,7 +38,12 @@ class Router {
     }
 
     route(needServiceName) {
-
+        let serviceList = this.getServiceList(needServiceName);
+        if(serviceList == false){
+            return false;
+        }else{
+            return serviceList.getRandomService();
+        }
     }
 }
 module.exports = Router;
