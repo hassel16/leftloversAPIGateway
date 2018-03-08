@@ -23,14 +23,24 @@ app.listen(80, function () {
 
 //Schnittstelle innen für services
 app.all('/APIGateway/Router/:needServiceName', function (req, res) {
-    let routeService = routerObj.route(req.params.needServiceName);
-    if (routeService == false) {
-        res.json(new Error('Der angeforderte Service exitiert aktuell unter diesem Namen nicht'));
-    }
-    apiProxy.web(req, res, { target: ` ${routeService.serviceUrl}:${routeService.servicePort} ` }, function (e) {
-        res.json(new Error(`Timeout ${req.params.needServiceName} Fehler beim Anfordern der Ressourcen`));
+    // verify a token asymmetric
+    var cert = fs.readFileSync('public.pem');  // get public key
+    jwt.verify(token, cert, function (err, decoded) {
+        if(err){
+            res.json(new Error(`Fehlerhafter Token: ${err.name}: ${err.message}`));
+        }else{
+            let routeService = routerObj.route(req.params.needServiceName);
+            if (routeService == false) {
+                res.json(new Error('Der angeforderte Service exitiert aktuell unter diesem Namen nicht'));
+            }
+            apiProxy.web(req, res, { target: ` ${routeService.serviceUrl}:${routeService.servicePort} ` }, function (e) {
+                res.json(new Error(`Timeout ${req.params.needServiceName} Fehler beim Anfordern der Ressourcen`));
+            });
+        }
     });
+
 });
+
 
 //Schnittstelle nach außen für Frontend
 app.all('/APIGateway/:needServiceName', function (req, res) {
@@ -44,17 +54,20 @@ app.all('/APIGateway/:needServiceName', function (req, res) {
 });
 
 app.post('/APIGateway/ServiceRegister', function (req, res) {
-    if(req.params.password =='leftlovers_wwi16B3'){
+    if (req.params.password == 'leftlovers_wwi16B3') {
         let cert = fs.readFileSync('private.key');
-        jwt.sign({ foo: 'bar' }, cert, { algorithm: 'RS256' }, function(err, token) {
-            if (routerObj.addServiceList(req.body.serviceName) == true) {
-                res.json(routerObj.domain[routerObj.domain.length - 1].addServiceInstance(req.body.serviceUrl, req.body.servicePort),token);
-            } else {
-                res.json(routerObj.getServiceList(req.body.serviceName).addServiceInstance(req.body.serviceUrl, req.body.servicePort),token);
-            }
-          });
-
-    }else{
+        jwt.sign(
+            { foo: 'leftlovers_wwi16B3' },
+            cert,
+            { exp: 1440 },
+            { algorithm: 'RS256' }, function (err, token) {
+                if (routerObj.addServiceList(req.body.serviceName) == true) {
+                    res.json(routerObj.domain[routerObj.domain.length - 1].addServiceInstance(req.body.serviceUrl, req.body.servicePort), token);
+                } else {
+                    res.json(routerObj.getServiceList(req.body.serviceName).addServiceInstance(req.body.serviceUrl, req.body.servicePort), token);
+                }
+            });
+    } else {
         res.json(new Error('Falsches Passwort'))
     }
 
@@ -68,12 +81,12 @@ app.get('/APIGateway/ServiceRegister/:needServiceName/:needServiceId', function 
     let serviceList = routerObj.getServiceList(req.params.needServiceName) != false ? res.json(serviceList) : res.json(new Error('Der angeforderte Service exitiert aktuell unter diesem Namen nicht'))
     if (serviceList != false) {
         let serviceInstance = serviceList.getServiceInstance(req.params.needServiceId);
-        if(serviceInstance != false){
+        if (serviceInstance != false) {
             res.json(serviceInstance);
-        }else{
+        } else {
             res.json(new Error("Service mit der Service-ID wurde nicht gefunden"));
         }
-    }else{
+    } else {
         res.json(new Error('Der angeforderte Service exitiert aktuell unter diesem Namen nicht'));
     }
 });
