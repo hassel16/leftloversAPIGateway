@@ -11,7 +11,7 @@ const routerObj = new Router();
 
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
-const ownToken= require('./classes/Token');
+const ownToken = require('./classes/Token');
 
 /**Eventuell gebraucht 
 app.use(bodyParser.urlencoded({
@@ -41,7 +41,12 @@ app.get('/APIGateway/ServiceRegister/:needServiceName/:needServiceId', function 
 });
 
 app.get('/APIGateway/ServiceRegister/:needServiceName', function (req, res) {
-    let serviceList = routerObj.getServiceList(req.params.needServiceName) != false ? res.status(200).json(serviceList) : res.status(400).json(new Error('Der angeforderte Service exitiert aktuell unter diesem Namen nicht'))
+    let serviceList = routerObj.getServiceList(req.params.needServiceName);
+    if (serviceList != false) {
+        res.status(200).json(serviceList);
+    } else {
+        res.status(400).json(new Error('Der angeforderte Service exitiert aktuell unter diesem Namen nicht'));
+    }
 });
 
 app.get('/APIGateway/ServiceRegister', function (req, res) {
@@ -51,18 +56,11 @@ app.get('/APIGateway/ServiceRegister', function (req, res) {
 
 app.post('/APIGateway/ServiceRegister', function (req, res) {
     if (req.query.password == 'leftlovers_wwi16B3') {
-        jwt.sign(
-            { foo: 'leftlovers_wwi16B3'},'levtlovers_wwi16B3', function (err, token) {
-                if(err){
-                    res.status(400).json(new Error('Fehler'));
-                }else{
-                    if (routerObj.addServiceList(req.body.serviceName) == true) {
-                        res.status(200).json([routerObj.domain[routerObj.domain.length - 1].addServiceInstance(req.body.serviceUrl, req.body.servicePort), new ownToken(token)]);
-                    } else {
-                        res.status(200).json([routerObj.getServiceList(req.body.serviceName).addServiceInstance(req.body.serviceUrl, req.body.servicePort), new ownToken(token)]);
-                    }
-                }
-            });
+        if (routerObj.addServiceList(req.body.serviceName) == true) {
+            res.status(200).json(routerObj.domain[routerObj.domain.length - 1].addServiceInstance(req.body.serviceUrl, req.body.servicePort));
+        } else {
+            res.status(200).json(routerObj.getServiceList(req.body.serviceName).addServiceInstance(req.body.serviceUrl, req.body.servicePort));
+        }
     } else {
         res.status(400).json(new Error('Falsches Passwort'))
     }
@@ -72,20 +70,13 @@ app.post('/APIGateway/ServiceRegister', function (req, res) {
 
 //Schnittstelle innen für services
 app.all('/:needServiceName/*', function (req, res) {
-    // verify a token asymmetric
-    let token = req.query.token;
-    jwt.verify(token,'levtlovers_wwi16B3',{ expiresIn: '1 Day' }, function (err, decoded) {
-        if(err){
-            res.status(400).json(new Error(`Fehlerhafter Token: ${err.name}: ${err.message}`));
-        }else{
-            let routeService = routerObj.route(req.params.needServiceName);
-            if (routeService == false) {
-                res.status(400).json(new Error('Der angeforderte Service exitiert aktuell unter diesem Namen nicht'));
-            }
-            apiProxy.web(req, res, 
-                { target: `${routeService.serviceUrl}:${routeService.servicePort}` }, function (e) {
-                res.status(400).json(new Error(`Timeout ${req.params.needServiceName} Fehler beim Anfordern der Ressourcen`));
-            });
-        }
-    });
+    let routeService = routerObj.route(req.params.needServiceName);
+    if (routeService == false) {
+        res.status(400).json(new Error('Der angeforderte Service exitiert aktuell unter diesem Namen nicht'));
+    }
+    console.log("asdasd")
+    apiProxy.web(req, res,
+        { target: `${routeService.serviceUrl}:${routeService.servicePort}`}, function (e) {
+            res.status(400).json(new Error(`Timeout ${req.params.needServiceName} Fehler beim Anfordern der Ressourcen`));
+        });
 });
