@@ -20,7 +20,7 @@ class ServiceList{
     }
 
     getRandomService(){
-        return this.serviceInstances[Math.floor(Math.random()*items.length)]
+        return this.serviceInstances[Math.floor(Math.random()*this.serviceInstances.length)]
     }
 
     getServiceInstance(serviceId){

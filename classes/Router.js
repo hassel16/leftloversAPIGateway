@@ -30,7 +30,7 @@ class Router {
 
     getServiceList(nServicelistName) {
         for (let index = 0; index < this.domain.length; index++) {
-            if (this.domain[index].serviceName == servicelistName) {
+            if (this.domain[index].serviceName == nServicelistName) {
                 return this.domain[index];
             }
         }
