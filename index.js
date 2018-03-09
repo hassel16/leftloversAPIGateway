@@ -55,6 +55,7 @@ app.get('/APIGateway/ServiceRegister', function (req, res) {
 
 app.get('/APIGateway', function (req, res) {
     res.status(200).json("asdsad");
+    res.end();
 });
 
 
