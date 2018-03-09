@@ -21,7 +21,7 @@ app.use(bodyParser.urlencoded({
 
 app.use(bodyParser.json());
 
-app.listen(80, function () {
+app.listen(function () {
     console.log("APIGateway");
 });
 
@@ -53,7 +53,7 @@ app.get('/APIGateway/ServiceRegister', function (req, res) {
     res.status(200).json(routerObj);
 });
 
-app.get('/APIGateway/', function (req, res) {
+app.get('/APIGateway', function (req, res) {
     res.status(200).json("asdsad");
 });
 
