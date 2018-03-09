@@ -3,7 +3,6 @@ const app = express();
 const httpProxy = require('http-proxy');
 const bodyParser = require('body-parser');
 const apiProxy = httpProxy.createProxyServer();
-const homeSeiteService = 'http://localhost:8087';
 const Router = require('./classes/Router');
 const Error = require('./classes/Error');
 
@@ -21,8 +20,8 @@ app.use(bodyParser.urlencoded({
 
 app.use(bodyParser.json());
 
-app.listen(function () {
-    console.log("APIGateway");
+app.listen(process.env.PORT || 3000,function () {
+    console.log("APIGateway", this.address().port, app.settings.env);
 });
 
 
