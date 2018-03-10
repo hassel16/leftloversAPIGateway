@@ -72,7 +72,7 @@ app.post('/APIGateway/ServiceRegister', function (req, res) {
 });
 
 
-proxy.on('proxyReq', function(proxyReq, req, res, options) {
+apiProxy.on('proxyReq', function(proxyReq, req, res, options) {
     if(req.body) {
       let bodyData = JSON.stringify(req.body);
       // incase if content-type is application/x-www-form-urlencoded -> we need to change to application/json
