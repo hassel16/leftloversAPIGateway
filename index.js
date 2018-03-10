@@ -72,13 +72,23 @@ app.post('/APIGateway/ServiceRegister', function (req, res) {
 });
 
 
+proxy.on('proxyReq', function(proxyReq, req, res, options) {
+    if(req.body) {
+      let bodyData = JSON.stringify(req.body);
+      // incase if content-type is application/x-www-form-urlencoded -> we need to change to application/json
+      proxyReq.setHeader('Content-Type','application/json');
+      proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+      // stream the content
+      proxyReq.write(bodyData);
+    }
+  });
+
 //Schnittstelle innen für services
 app.all('/:needServiceName/*', function (req, res) {
     let routeService = routerObj.route(req.params.needServiceName);
     if (routeService == false) {
         res.status(400).json(new Error('Der angeforderte Service exitiert aktuell unter diesem Namen nicht'));
     }
-    console.log("asdasd")
     apiProxy.web(req, res,
         { target: `${routeService.serviceUrl}:${routeService.servicePort}`}, function (e) {
             res.status(400).json(new Error(`Timeout ${req.params.needServiceName} Fehler beim Anfordern der Ressourcen`));
