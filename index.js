@@ -71,7 +71,7 @@ app.all('/:needServiceName/*', function (req, res) {
         res.status(400).json(new Error('Der angeforderte Service exitiert aktuell unter diesem Namen nicht'));
     }
     apiProxy.web(req, res,
-        { target: `${routeService.serviceUrl}:${routeService.servicePort}`,https: true,
+        { target: `${routeService.serviceUrl}`,agent  : https.globalAgent, https: true,
     proxyTimeout:60000},
         function (e,ereq,eres,url) {
             res.status(502).json(new Error(`Timeout ${req.params.needServiceName} Fehler beim Anfordern der Ressourcen`));
