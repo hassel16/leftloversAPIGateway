@@ -32,6 +32,15 @@ class ServiceList{
         return false;
     }
 
+    getServiceInstance(serviceUrl,servicePort){
+        this.serviceInstances.forEach(serviceInstance => {
+            if (serviceInstance.serviceUrl == serviceUrl && serviceInstance.servicePort == servicePort) {
+                return serviceInstance;
+            }
+        });
+        return false;
+    }
+
     deleteServiceInstance(serviceInstanceId){
         for (let index = 0; index < this.serviceInstances.length; index++) {
             if (this.serviceInstances[index].serviceId == serviceInstanceId) {

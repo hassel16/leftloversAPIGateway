@@ -55,7 +55,11 @@ app.post('/APIGateway/ServiceRegister', function (req, res) {
         if (routerObj.addServiceList(req.body.serviceName) == true) {
             res.status(200).json(routerObj.domain[routerObj.domain.length - 1].addServiceInstance(req.body.serviceUrl, req.body.servicePort));
         } else {
-            res.status(200).json(routerObj.getServiceList(req.body.serviceName).addServiceInstance(req.body.serviceUrl, req.body.servicePort));
+            if (routerObj.getServiceList(req.body.serviceName).addServiceInstance(req.body.serviceUrl, req.body.servicePort) == false) {
+                res.status(200).json(routerObj.getServiceList(req.body.serviceName).getServiceInstance(req.body.serviceUrl, req.body.servicePort));
+            } else {
+                res.status(200).json(routerObj.getServiceList(req.body.serviceName).addServiceInstance(req.body.serviceUrl, req.body.servicePort));
+            }
         }
     } else {
         res.status(400).json(new Error('Falsches Passwort'))
@@ -71,9 +75,11 @@ app.all('/:needServiceName/*', function (req, res) {
         res.status(400).json(new Error('Der angeforderte Service exitiert unter diesem Namen aktuell nicht'));
     }
     apiProxy.web(req, res,
-        { target: `${routeService.serviceUrl}`,agent  : https.globalAgent,https:true,
-    proxyTimeout:60000,changeOrigin: true},
-        function (e,ereq,eres,url) {
+        {
+            target: `${routeService.serviceUrl}`, agent: https.globalAgent, https: true,
+            proxyTimeout: 60000, changeOrigin: true
+        },
+        function (e, ereq, eres, url) {
             res.status(502).json(new Error(`${e.message} Timeout ${req.params.needServiceName} Fehler beim Anfordern der Ressourcen`));
         });
 });
