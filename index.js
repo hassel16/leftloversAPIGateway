@@ -9,7 +9,7 @@ const Error = require('./classes/Error');
 const routerObj = new Router();
 
 //restream parsed body before proxying
-httpProxy.on('proxyReq', function(proxyReq, req, res, options) {
+apiProxy.on('proxyReq', function(proxyReq, req, res, options) {
      if(req.body) {
         let bodyData = JSON.stringify(req.body);
         // incase if content-type is application/x-www-form-urlencoded -> we need to change to application/json
@@ -21,7 +21,7 @@ httpProxy.on('proxyReq', function(proxyReq, req, res, options) {
     });
 
     app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded());
+    app.use(bodyParser.urlencoded({ extended: false }));
 
     app.listen(process.env.PORT || 3000, function () {
         console.log("APIGateway", this.address().port, app.settings.env);
@@ -73,17 +73,6 @@ httpProxy.on('proxyReq', function(proxyReq, req, res, options) {
 
     });
 
-
-    apiProxy.on('proxyReq', function (proxyReq, req, res, options) {
-        if (req.body) {
-            let bodyData = JSON.stringify(req.body);
-            // incase if content-type is application/x-www-form-urlencoded -> we need to change to application/json
-            proxyReq.setHeader('Content-Type', 'application/json');
-            proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
-            // stream the content
-            proxyReq.write(bodyData);
-        }
-    });
 
     //Schnittstelle für services
     app.all('/:needServiceName/*', function (req, res) {
