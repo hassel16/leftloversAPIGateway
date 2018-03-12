@@ -68,7 +68,7 @@ app.post('/APIGateway/ServiceRegister', function (req, res) {
 app.all('/:needServiceName/*', function (req, res) {
     let routeService = routerObj.route(req.params.needServiceName);
     if (routeService == false) {
-        res.status(400).json(new Error('Der angeforderte Service exitiert aktuell unter diesem Namen nicht'));
+        res.status(400).json(new Error('Der angeforderte Service exitiert unter diesem Namen aktuell nicht'));
     }
     apiProxy.web(req, res,
         { target: `${routeService.serviceUrl}`,agent  : https.globalAgent,https:true,
