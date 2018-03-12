@@ -67,12 +67,13 @@ app.post('/APIGateway/ServiceRegister', function (req, res) {
 //Schnittstelle für services
 app.all('/:needServiceName/*', function (req, res) {
     let routeService = routerObj.route(req.params.needServiceName);
+    routeService=true;
     if (routeService == false) {
         res.status(400).json(new Error('Der angeforderte Service exitiert aktuell unter diesem Namen nicht'));
     }
     apiProxy.web(req, res,
-        { target: `standortservice.herokuapp.com:443/`,agent  : https.globalAgent,
-    proxyTimeout:600000},
+        { target: `https://standortservice.herokuapp.com/`,agent  : https.globalAgent,https:true,
+    proxyTimeout:600000,changeOrigin: true},
         function (e,ereq,eres,url) {
             res.status(502).json(new Error(`${e.message} Timeout ${req.params.needServiceName} Fehler beim Anfordern der Ressourcen`));
         });
