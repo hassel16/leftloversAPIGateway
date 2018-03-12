@@ -72,7 +72,7 @@ app.all('/:needServiceName/*', function (req, res) {
     }
     apiProxy.web(req, res,
         { target: `${routeService.serviceUrl}:${routeService.servicePort}`,https: true,
-    proxyTimeout:600},
+    proxyTimeout:60000},
         function (e,ereq,eres,url) {
             res.status(502).json(new Error(`Timeout ${req.params.needServiceName} Fehler beim Anfordern der Ressourcen`));
         });
