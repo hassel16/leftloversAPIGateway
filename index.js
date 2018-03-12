@@ -11,7 +11,11 @@ const routerObj = new Router();
 
 
 
-app.use(bodyParser.json());
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    bodyParser.json()
+    next();
+  });
 
 app.listen(process.env.PORT || 3000, function () {
     console.log("APIGateway", this.address().port, app.settings.env);
