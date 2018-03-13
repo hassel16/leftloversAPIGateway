@@ -9,6 +9,8 @@ const Router = require('./classes/Router');
 const Error = require('./classes/Error');
 const https = require('https');
 
+const ServiceList = require('./classes/ServiceList');
+
 const fs = require('fs');
 const jsonSaveFile = './router.json';
 const jsonSaveFileObj = require(jsonSaveFile);
@@ -41,9 +43,13 @@ app.listen(process.env.PORT || 3000, function () {
 
 
 app.get('/APIGateway/ServiceRegister/:needServiceName/:needServiceId', function (req, res) {
-    let serviceList = routerObj.getServiceList(req.params.needServiceName) != false ? res.status(200).json(serviceList) : res.status(400).json(new Error('Der angeforderte Service exitiert aktuell unter diesem Namen nicht'))
+    let serviceList = new ServiceList();
+    let serviceListCache = routerObj.getServiceList(req.params.needServiceName);
+    serviceList.serviceName = serviceListCache.serviceName;
+    serviceList.serviceInstances = serviceListCache.serviceInstances 
     if (serviceList != false) {
         let serviceInstance = serviceList.getServiceInstance(req.params.needServiceId);
+        console.log(serviceInstance)
         if (serviceInstance != false) {
             res.status(200).json(serviceInstance);
         } else {
@@ -79,7 +85,7 @@ app.post('/APIGateway/ServiceRegister', function (req, res) {
             res.status(200).json(routerObj.domain[routerObj.domain.length - 1].addServiceInstance(req.body.serviceUrl, req.body.servicePort));
         } else {
             if (routerObj.getServiceList(req.body.serviceName).addServiceInstance(req.body.serviceUrl, req.body.servicePort) == false) {
-                res.status(200).json(routerObj.getServiceList(req.body.serviceName).getServiceInstance(req.body.serviceUrl, req.body.servicePort));
+                res.status(200).json(routerObj.getServiceList(req.body.serviceName).getServiceInstanceWithURLAndPort(req.body.serviceUrl, req.body.servicePort));
             } else {
                 fs.writeFile(jsonSaveFile, JSON.stringify(routerObj), 'utf8');
                 res.status(200).json(routerObj.getServiceList(req.body.serviceName).addServiceInstance(req.body.serviceUrl, req.body.servicePort));
@@ -101,7 +107,7 @@ app.all('/:needServiceName/*', function (req, res) {
     apiProxy.web(req, res,
         {
             target: `${routeService.serviceUrl}`, agent: https.globalAgent, https: true,
-            proxyTimeout: 60000, changeOrigin: true
+            proxyTimeout: 12000, changeOrigin: true
         },
         function (e, ereq, eres, url) {
             res.status(502).json(new Error(`${e.message} Timeout ${req.params.needServiceName} Fehler beim Anfordern der Ressourcen`));

@@ -24,20 +24,20 @@ class ServiceList{
     }
 
     getServiceInstance(serviceId){
-        this.serviceInstances.forEach(serviceInstance => {
-            if (serviceInstance.serviceId == serviceId) {
-                return serviceInstance;
+        for (let index = 0; index < this.serviceInstances.length; index++) {
+            if (this.serviceInstances[index].serviceId == serviceId) {
+                return this.serviceInstances[index];
             }
-        });
+        }
         return false;
     }
 
-    getServiceInstance(serviceUrl,servicePort){
-        this.serviceInstances.forEach(serviceInstance => {
+    getServiceInstanceWithURLAndPort(serviceUrl,servicePort){
+        for (let index = 0; index < this.serviceInstances.length; index++) {
             if (serviceInstance.serviceUrl == serviceUrl && serviceInstance.servicePort == servicePort) {
-                return serviceInstance;
+                return this.serviceInstances[index];
             }
-        });
+        }
         return false;
     }
 
