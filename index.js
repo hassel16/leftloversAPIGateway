@@ -55,10 +55,7 @@ app.post('/APIGateway/ServiceRegister', function (req, res) {
             fs.writeFile(jsonSaveFile, JSON.stringify(routerObj), 'utf8',(err) => {});
             res.status(200).json(routerObj.domain[routerObj.domain.length - 1].addServiceInstance(req.body.serviceUrl, req.body.servicePort));
         } else {
-            let servicelist = new ServiceList();
-            let serviceListCache =routerObj.getServiceList(req.body.serviceName);
-            servicelist.serviceName = serviceListCache.serviceName;
-            servicelist.serviceInstances = serviceListCache.serviceInstances;
+            let servicelist = Object.assign(new ServiceList(),routerObj.getServiceList(req.body.serviceName));
             if (servicelist.addServiceInstance(req.body.serviceUrl, req.body.servicePort) == false) {
                 res.status(200).json(servicelist.getServiceInstanceWithURLAndPort(req.body.serviceUrl, req.body.servicePort));
             } else {
@@ -81,10 +78,7 @@ app.get('/APIGateway/ServiceRegister/:needServiceName', function (req, res) {
 });
 
 app.get('/APIGateway/ServiceRegister/:needServiceName/:needServiceId', function (req, res) {
-    let serviceList = new ServiceList();
-    let serviceListCache = routerObj.getServiceList(req.params.needServiceName);
-    serviceList.serviceName = serviceListCache.serviceName;
-    serviceList.serviceInstances = serviceListCache.serviceInstances
+    let serviceList = Object.assign(new ServiceList(),routerObj.getServiceList(req.params.needServiceName));
     if (serviceList != false) {
         let serviceInstance = serviceList.getServiceInstance(req.params.needServiceId);
         if (serviceInstance != false) {
@@ -99,10 +93,7 @@ app.get('/APIGateway/ServiceRegister/:needServiceName/:needServiceId', function 
 
 app.delete('/APIGateway/ServiceRegister/:needServiceName/:needServiceId', function (req, res) {
     if (req.query.password == 'leftlovers_wwi16B3') {
-        let serviceList = new ServiceList();
-        let serviceListCache = routerObj.getServiceList(req.params.needServiceName);
-        serviceList.serviceName = serviceListCache.serviceName;
-        serviceList.serviceInstances = serviceListCache.serviceInstances
+        let serviceList = Object.assign(new ServiceList(),routerObj.getServiceList(req.params.needServiceName));
         if (serviceList != false) {
             if(serviceList.serviceInstances.length==1){
                 routerObj.deleteServiceList(req.params.needServiceName);
