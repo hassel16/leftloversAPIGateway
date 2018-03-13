@@ -2,6 +2,9 @@
 
 const ServiceList = require('./ServiceList');
 const Service = require('./Service');
+const fs = require('fs');
+const jsonSaveFile = '../router.json';
+const jsonSaveFileObj = require(jsonSaveFile);
 
 class Router {
     constructor() {
@@ -38,12 +41,20 @@ class Router {
     }
 
     route(needServiceName) {
-        let serviceList = this.getServiceList(needServiceName);
+        let serviceList = Object.assign(new ServiceList(),this.getServiceList(needServiceName));
         if(serviceList == false){
             return false;
         }else{
             return serviceList.getRandomService();
         }
+    }
+
+    saveInJSON(){
+        fs.writeFile(jsonSaveFile, JSON.stringify(this), 'utf8',(err) => {});
+    }
+
+    static readFromJSON(){
+        return Object.assign(new Router(),jsonSaveFileObj);
     }
 }
 module.exports = Router;

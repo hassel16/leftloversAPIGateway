@@ -9,14 +9,21 @@ class ServiceList{
     }
 
     addServiceInstance(serviceUrl,servicePort){
-        this.serviceInstances.forEach(serviceInstance => {
-            if (serviceInstance.serviceUrl == serviceUrl && serviceInstance.servicePort == servicePort) {
-                return false;
-            }
-        });
+        if(this.isServiceUrlAndPortInServiceInstances(serviceUrl,servicePort)!=false){
+            return false;
+        }
         let nService = new Service(this.serviceInstances.length,serviceUrl,servicePort);
         this.serviceInstances.push(nService);
         return nService;
+    }
+
+    isServiceUrlAndPortInServiceInstances(serviceUrl,servicePort){
+        for (let index = 0; index < this.serviceInstances.length; index++) {
+            if (serviceInstance.serviceUrl == serviceUrl && serviceInstance.servicePort == servicePort) {
+                return index;
+            }
+        }
+        return false;
     }
 
     getRandomService(){
@@ -33,10 +40,9 @@ class ServiceList{
     }
 
     getServiceInstanceWithURLAndPort(serviceUrl,servicePort){
-        for (let index = 0; index < this.serviceInstances.length; index++) {
-            if (serviceInstance.serviceUrl == serviceUrl && serviceInstance.servicePort == servicePort) {
-                return this.serviceInstances[index];
-            }
+        let indexIfExist=this.isServiceUrlAndPortInServiceInstances(serviceUrl,servicePort);
+        if(indexIfExist != false){
+            return this.serviceInstances[indexIfExist];
         }
         return false;
     }

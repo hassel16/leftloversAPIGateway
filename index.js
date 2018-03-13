@@ -2,8 +2,7 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 
-const httpProxy = require('http-proxy');
-const apiProxy = httpProxy.createProxyServer();
+const apiProxy = require('http-proxy').createProxyServer();
 
 const Router = require('./classes/Router');
 const Error = require('./classes/Error');
@@ -11,11 +10,7 @@ const https = require('https');
 
 const ServiceList = require('./classes/ServiceList');
 
-const fs = require('fs');
-const jsonSaveFile = './router.json';
-const jsonSaveFileObj = require(jsonSaveFile);
-const routerObj = new Router();
-routerObj.domain = jsonSaveFileObj.domain;
+const routerObj = Router.readFromJSON();
 
 //restream parsed body before proxying
 apiProxy.on('proxyReq', function (proxyReq, req, res, options) {
@@ -52,14 +47,14 @@ app.get('/APIGateway/ServiceRegister', function (req, res) {
 app.post('/APIGateway/ServiceRegister', function (req, res) {
     if (req.query.password == 'leftlovers_wwi16B3') {
         if (routerObj.addServiceList(req.body.serviceName) == true) {
-            fs.writeFile(jsonSaveFile, JSON.stringify(routerObj), 'utf8',(err) => {});
+            routerObj.saveInJSON();
             res.status(200).json(routerObj.domain[routerObj.domain.length - 1].addServiceInstance(req.body.serviceUrl, req.body.servicePort));
         } else {
             let servicelist = Object.assign(new ServiceList(),routerObj.getServiceList(req.body.serviceName));
             if (servicelist.addServiceInstance(req.body.serviceUrl, req.body.servicePort) == false) {
                 res.status(200).json(servicelist.getServiceInstanceWithURLAndPort(req.body.serviceUrl, req.body.servicePort));
             } else {
-                fs.writeFile(jsonSaveFile, JSON.stringify(routerObj), 'utf8',(err) => {});
+                routerObj.saveInJSON();
                 res.status(200).json(servicelist.addServiceInstance(req.body.serviceUrl, req.body.servicePort));
             }
         }
@@ -97,11 +92,11 @@ app.delete('/APIGateway/ServiceRegister/:needServiceName/:needServiceId', functi
         if (serviceList != false) {
             if(serviceList.serviceInstances.length==1){
                 routerObj.deleteServiceList(req.params.needServiceName);
-                fs.writeFile(jsonSaveFile, JSON.stringify(routerObj), 'utf8',(err) => {});
+                routerObj.saveInJSON();
                 res.status(200).json("Service Instanz und Service Liste gelöscht");
             }else{
                 serviceList.deleteServiceInstance(req.params.needServiceId);
-                fs.writeFile(jsonSaveFile, JSON.stringify(routerObj), 'utf8',(err) => {});
+                routerObj.saveInJSON();
                 res.status(200).json("Service Instanz gelöscht");
             }
             
