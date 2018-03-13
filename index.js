@@ -52,14 +52,18 @@ app.get('/APIGateway/ServiceRegister', function (req, res) {
 app.post('/APIGateway/ServiceRegister', function (req, res) {
     if (req.query.password == 'leftlovers_wwi16B3') {
         if (routerObj.addServiceList(req.body.serviceName) == true) {
-            fs.writeFile(jsonSaveFile, JSON.stringify(routerObj), 'utf8');
+            fs.writeFile(jsonSaveFile, JSON.stringify(routerObj), 'utf8',(err) => {});
             res.status(200).json(routerObj.domain[routerObj.domain.length - 1].addServiceInstance(req.body.serviceUrl, req.body.servicePort));
         } else {
-            if (routerObj.getServiceList(req.body.serviceName).addServiceInstance(req.body.serviceUrl, req.body.servicePort) == false) {
-                res.status(200).json(routerObj.getServiceList(req.body.serviceName).getServiceInstanceWithURLAndPort(req.body.serviceUrl, req.body.servicePort));
+            let servicelist = new ServiceList();
+            let serviceListCache =routerObj.getServiceList(req.body.serviceName);
+            servicelist.serviceName = serviceListCache.serviceName;
+            servicelist.serviceInstances = serviceListCache.serviceInstances;
+            if (servicelist.addServiceInstance(req.body.serviceUrl, req.body.servicePort) == false) {
+                res.status(200).json(servicelist.getServiceInstanceWithURLAndPort(req.body.serviceUrl, req.body.servicePort));
             } else {
-                fs.writeFile(jsonSaveFile, JSON.stringify(routerObj), 'utf8');
-                res.status(200).json(routerObj.getServiceList(req.body.serviceName).addServiceInstance(req.body.serviceUrl, req.body.servicePort));
+                fs.writeFile(jsonSaveFile, JSON.stringify(routerObj), 'utf8',(err) => {});
+                res.status(200).json(servicelist.addServiceInstance(req.body.serviceUrl, req.body.servicePort));
             }
         }
     } else {
@@ -102,11 +106,11 @@ app.delete('/APIGateway/ServiceRegister/:needServiceName/:needServiceId', functi
         if (serviceList != false) {
             if(serviceList.serviceInstances.length==1){
                 routerObj.deleteServiceList(req.params.needServiceName);
-                fs.writeFile(jsonSaveFile, JSON.stringify(routerObj), 'utf8');
+                fs.writeFile(jsonSaveFile, JSON.stringify(routerObj), 'utf8',(err) => {});
                 res.status(200).json("Service Instanz und Service Liste gelöscht");
             }else{
                 serviceList.deleteServiceInstance(req.params.needServiceId);
-                fs.writeFile(jsonSaveFile, JSON.stringify(routerObj), 'utf8');
+                fs.writeFile(jsonSaveFile, JSON.stringify(routerObj), 'utf8',(err) => {});
                 res.status(200).json("Service Instanz gelöscht");
             }
             

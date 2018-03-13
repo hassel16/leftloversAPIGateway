@@ -9,11 +9,11 @@ class Router {
     }
     
     addServiceList(nServicelistName) {
-        this.domain.forEach(servicelist => {
-            if (servicelist.serviceName == nServicelistName) {
+        for (let index = 0; index < this.domain.length; index++) {
+            if (this.domain[index].serviceName == nServicelistName) {
                 return false;
             }
-        });
+        }
         this.domain.push(new ServiceList(nServicelistName));
         return true;
     }
@@ -21,7 +21,7 @@ class Router {
     deleteServiceList(nServicelistName) {
         for (let index = 0; index < this.domain.length; index++) {
             if (this.domain[index].serviceName == nServicelistName) {
-                this.domain.slice(index, 1);
+                this.domain.splice(index, 1);
                 return true;
             }
         }

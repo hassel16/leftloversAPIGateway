@@ -44,7 +44,7 @@ class ServiceList{
     deleteServiceInstance(serviceInstanceId){
         for (let index = 0; index < this.serviceInstances.length; index++) {
             if (this.serviceInstances[index].serviceId == serviceInstanceId) {
-                this.serviceInstances.slice(index, 1);
+                this.serviceInstances.splice(index, 1);
                 return true;
             }
         }
