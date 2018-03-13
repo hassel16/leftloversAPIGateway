@@ -9,7 +9,11 @@ const Router = require('./classes/Router');
 const Error = require('./classes/Error');
 const https = require('https');
 
+const fs = require('fs');
+const jsonSaveFile = './router.json';
+const jsonSaveFileObj = require(jsonSaveFile);
 const routerObj = new Router();
+routerObj.domain=jsonSaveFileObj.domain;
 
 //restream parsed body before proxying
 apiProxy.on('proxyReq', function(proxyReq, req, res, options) {
@@ -71,11 +75,13 @@ app.get('/APIGateway', function (req, res) {
 app.post('/APIGateway/ServiceRegister', function (req, res) {
     if (req.query.password == 'leftlovers_wwi16B3') {
         if (routerObj.addServiceList(req.body.serviceName) == true) {
+            fs.writeFile(jsonSaveFile, JSON.stringify(routerObj), 'utf8');
             res.status(200).json(routerObj.domain[routerObj.domain.length - 1].addServiceInstance(req.body.serviceUrl, req.body.servicePort));
         } else {
             if (routerObj.getServiceList(req.body.serviceName).addServiceInstance(req.body.serviceUrl, req.body.servicePort) == false) {
                 res.status(200).json(routerObj.getServiceList(req.body.serviceName).getServiceInstance(req.body.serviceUrl, req.body.servicePort));
             } else {
+                fs.writeFile(jsonSaveFile, JSON.stringify(routerObj), 'utf8');
                 res.status(200).json(routerObj.getServiceList(req.body.serviceName).addServiceInstance(req.body.serviceUrl, req.body.servicePort));
             }
         }
