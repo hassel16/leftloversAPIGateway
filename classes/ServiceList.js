@@ -19,7 +19,7 @@ class ServiceList{
 
     isServiceUrlAndPortInServiceInstances(serviceUrl,servicePort){
         for (let index = 0; index < this.serviceInstances.length; index++) {
-            if (this.serviceInstances[index].serviceUrl == serviceUrl && this.serviceInstances[index].servicePort == servicePort) {
+            if (new String(this.serviceInstances[index].serviceUrl).valueOf() == new String(serviceUrl).valueOf() && new String(this.serviceInstances[index].servicePort).valueOf() == new String(servicePort).valueOf()) {
                 return index;
             }
         }

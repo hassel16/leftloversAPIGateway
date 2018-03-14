@@ -1,1 +1,1 @@
-{"domain":[]}
+{"domain":[{"serviceName":"StandortService","serviceInstances":[{"serviceId":0,"serviceUrl":"https://standortservice.herokuapp.com","servicePort":"443"}]},{"serviceName":"UAAService","serviceInstances":[{"serviceId":0,"serviceUrl":"https://uaaservice.herokuapp.com/","servicePort":443},{"serviceId":1,"serviceUrl":"https://uaaservice.herokuapp.com/","servicePort":443},{"serviceId":2,"serviceUrl":"https://uaaservice.herokuapp.com/","servicePort":443}]}]}
