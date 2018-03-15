@@ -2,9 +2,10 @@
 
 const ServiceList = require('./ServiceList');
 const Service = require('./Service');
+const jsonfile = require('jsonfile');
 const fs = require('fs');
-const jsonSaveFile = '../router.json';
-const jsonSaveFileObj = require(jsonSaveFile);
+const jsonSaveFile = './router.json';
+//const jsonSaveFileObj = require(jsonSaveFile);
 
 class Router {
     constructor() {
@@ -50,11 +51,11 @@ class Router {
     }
 
     saveInJSON(){
-        fs.writeFile(jsonSaveFile, JSON.stringify(this), 'utf8',(err) => {});
+        jsonfile.writeFileSync(jsonSaveFile, this)
     }
 
     static readFromJSON(){
-        return Object.assign(new Router(),jsonSaveFileObj);
+        return Object.assign(new Router(),jsonfile.readFileSync(jsonSaveFile))
     }
 }
 module.exports = Router;

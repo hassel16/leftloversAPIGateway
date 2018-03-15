@@ -9,7 +9,7 @@ class ServiceList{
     }
 
     addServiceInstance(serviceUrl,servicePort){
-        if(this.isServiceUrlAndPortInServiceInstances(serviceUrl,servicePort)!=false){
+        if(this.isServiceUrlAndPortInServiceInstances(serviceUrl,servicePort)!==false){
             return false;
         }
         let nService = new Service(this.serviceInstances.length,serviceUrl,servicePort);

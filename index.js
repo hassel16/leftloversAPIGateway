@@ -51,11 +51,12 @@ app.post('/APIGateway/ServiceRegister', function (req, res) {
             res.status(200).json(routerObj.domain[routerObj.domain.length - 1].addServiceInstance(req.body.serviceUrl, req.body.servicePort));
         } else {
             let servicelist = Object.assign(new ServiceList(),routerObj.getServiceList(req.body.serviceName));
-            if (servicelist.addServiceInstance(req.body.serviceUrl, req.body.servicePort) == false) {
+            let serviceInstance = servicelist.addServiceInstance(req.body.serviceUrl, req.body.servicePort);
+            if ( serviceInstance == false) {
                 res.status(200).json(servicelist.getServiceInstanceWithURLAndPort(req.body.serviceUrl, req.body.servicePort));
             } else {
                 routerObj.saveInJSON();
-                res.status(200).json(servicelist.addServiceInstance(req.body.serviceUrl, req.body.servicePort));
+                res.status(200).json(serviceInstance);
             }
         }
     } else {
