@@ -1,1 +1,1 @@
-{"domain":[{"serviceName":"UAAService","serviceInstances":[{"serviceId":0,"serviceUrl":"https://uaaservice.herokuapp.com/","servicePort":"443"},{"serviceId":1,"serviceUrl":"https://uaasxervice.herokuapp.com/","servicePort":"443"},{"serviceId":2,"serviceUrl":"httpsaa://uaasxervice.herokuapp.com/","servicePort":"443"},{"serviceId":3,"serviceUrl":"test://uaasxervice.herokuapp.com/","servicePort":"443"}]}]}
+{"domain":[{"serviceName":"StandortService","serviceInstances":[{"serviceId":0,"serviceUrl":"https://standortservice.herokuapp.com","servicePort":"443"}]}]}

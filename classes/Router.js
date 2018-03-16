@@ -5,7 +5,22 @@ const Service = require('./Service');
 const jsonfile = require('jsonfile');
 const fs = require('fs');
 const jsonSaveFile = './router.json';
-//const jsonSaveFileObj = require(jsonSaveFile);
+const apiProxy = require('http-proxy').createProxyServer();
+const https = require('https');
+const Error = require('./Error');
+
+//restream parsed body before proxying
+apiProxy.on('proxyReq', function (proxyReq, req, res, options) {
+    if (req.body) {
+        let bodyData = JSON.stringify(req.body);
+        // incase if content-type is application/x-www-form-urlencoded -> we need to change to application/json
+        proxyReq.setHeader('Content-Type', 'application/json');
+        proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+        // stream the content
+        proxyReq.write(bodyData);
+    }
+});
+
 
 class Router {
     constructor() {
@@ -41,13 +56,30 @@ class Router {
         return false;
     }
 
-    route(needServiceName) {
-        let serviceList = Object.assign(new ServiceList(),this.getServiceList(needServiceName));
-        if(serviceList == false){
+    routeToRandomServiceInstance(needServiceName) {
+        let serviceList = this.getServiceList(needServiceName);
+        if(serviceList === false){
             return false;
         }else{
-            return serviceList.getRandomService();
+            return Object.assign(new ServiceList(),serviceList).getRandomService();
         }
+    }
+
+    proxyToRandom(req, res){
+        let routeService = this.routeToRandomServiceInstance(req.params.needServiceName);
+        if (routeService === false) {
+            res.status(400).json(new Error('Der angeforderte Service exitiert unter diesem Namen aktuell nicht'));
+        }else{
+            apiProxy.web(req, res,
+                {
+                    target: `${routeService.serviceUrl}`, agent: https.globalAgent, https: true,
+                    proxyTimeout: 12000, changeOrigin: true
+                },
+                function (e, ereq, eres, url) {
+                    res.status(502).json(new Error(`${e.message} Timeout ${req.params.needServiceName} Fehler beim Anfordern der Ressourcen`));
+                });
+        }
+
     }
 
     saveInJSON(){

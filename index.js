@@ -2,33 +2,18 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 
-const apiProxy = require('http-proxy').createProxyServer();
-
 const Router = require('./classes/Router');
-const Error = require('./classes/Error');
-const https = require('https');
 
 const ServiceList = require('./classes/ServiceList');
 
 const routerObj = Router.readFromJSON();
-
-//restream parsed body before proxying
-apiProxy.on('proxyReq', function (proxyReq, req, res, options) {
-    if (req.body) {
-        let bodyData = JSON.stringify(req.body);
-        // incase if content-type is application/x-www-form-urlencoded -> we need to change to application/json
-        proxyReq.setHeader('Content-Type', 'application/json');
-        proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
-        // stream the content
-        proxyReq.write(bodyData);
-    }
-});
 
 
 app.use(bodyParser.json());
 
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "*");
     next();
 });
 
@@ -72,8 +57,7 @@ app.get('/APIGateway/ServiceRegister/:needServiceName', function (req, res) {
         res.status(400).json(new Error('Der angeforderte Service exitiert aktuell unter diesem Namen nicht'));
     }
 });
-
-app.get('/APIGateway/ServiceRegister/:needServiceName/:needServiceId', function (req, res) {
+app.get('/APIGateway/ServiceRegister/:needServiceName/:needServiceId',function (req, res) {
     let serviceList = Object.assign(new ServiceList(),routerObj.getServiceList(req.params.needServiceName));
     if (serviceList != false) {
         let serviceInstance = serviceList.getServiceInstance(req.params.needServiceId);
@@ -87,7 +71,7 @@ app.get('/APIGateway/ServiceRegister/:needServiceName/:needServiceId', function 
     }
 });
 
-app.delete('/APIGateway/ServiceRegister/:needServiceName/:needServiceId', function (req, res) {
+app.delete('/APIGateway/ServiceRegister/:needServiceName/:needServiceId',function (req, res) {
     if (req.query.password == 'leftlovers_wwi16B3') {
         let serviceList = Object.assign(new ServiceList(),routerObj.getServiceList(req.params.needServiceName));
         if (serviceList != false) {
@@ -112,17 +96,16 @@ app.delete('/APIGateway/ServiceRegister/:needServiceName/:needServiceId', functi
 
 
 //Schnittstelle für services
-app.all('/:needServiceName/*', function (req, res) {
-    let routeService = routerObj.route(req.params.needServiceName);
-    if (routeService == false) {
-        res.status(400).json(new Error('Der angeforderte Service exitiert unter diesem Namen aktuell nicht'));
-    }
-    apiProxy.web(req, res,
-        {
-            target: `${routeService.serviceUrl}`, agent: https.globalAgent, https: true,
-            proxyTimeout: 12000, changeOrigin: true
-        },
-        function (e, ereq, eres, url) {
-            res.status(502).json(new Error(`${e.message} Timeout ${req.params.needServiceName} Fehler beim Anfordern der Ressourcen`));
-        });
-});
+app.route('/:needServiceName/*')
+.get(function (req, res) {
+    routerObj.proxyToRandom(req,res)
+})
+.post(function (req, res) {
+    routerObj.proxyToRandom(req,res)
+})
+.put(function (req, res) {
+    routerObj.proxyToRandom(req,res)
+})
+.delete(function (req, res) {
+    routerObj.proxyToRandom(req,res)
+})
